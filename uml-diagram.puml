@@ -1,0 +1,284 @@
+@startuml Field Manager API - Class Diagram
+
+' Class Diagram
+package "net.service.fieldmanager" {
+  class FieldmanagerApplication {
+    + main(args: String[]): void
+  }
+}
+
+package "net.service.fieldmanager.config" {
+  class SecurityConfig {
+    + securityFilterChain(http: HttpSecurity): SecurityFilterChain
+  }
+}
+
+package "net.service.fieldmanager.user" {
+  enum Role {
+    User
+    Admin
+  }
+  
+  class User {
+    - id: Long
+    - name: String
+    - email: String
+    - password: String
+    - createdDate: Instant
+    - role: Role
+    - isActive: boolean
+  }
+  
+  class UserCreationRequest {
+    - name: String
+    - email: String
+    - password: String
+    - role: Role
+    - isActive: boolean
+  }
+  
+  class UserUpdateRequest {
+    - name: String
+    - email: String
+    - password: String
+    - role: Role
+    - isActive: Boolean
+  }
+  
+  interface UserRepository {
+    + findByEmail(email: String): Optional<User>
+  }
+  
+  class UserService {
+    - userRepository: UserRepository
+    + createUser(request: UserCreationRequest): User
+    + login(email: String, password: String): String
+    + getUserById(id: Long): Optional<User>
+    + getAllUsers(): List<User>
+    + updateUser(id: Long, request: UserUpdateRequest): User
+    + deleteUser(id: Long): void
+  }
+  
+  class UserController {
+    - userService: UserService
+    + createUser(request: UserCreationRequest): ResponseEntity<User>
+    + login(user: User): ResponseEntity<String>
+    + getUserById(id: Long): ResponseEntity<User>
+    + getAllUsers(): ResponseEntity<List<User>>
+    + updateUser(id: Long, request: UserUpdateRequest): ResponseEntity<User>
+    + deleteUser(id: Long): ResponseEntity<Void>
+  }
+}
+
+' Relationships
+UserController --> UserService: uses
+UserService --> UserRepository: uses
+UserRepository --> User: manages
+User --> Role: has
+UserService ..> UserCreationRequest: uses
+UserService ..> UserUpdateRequest: uses
+UserController ..> UserCreationRequest: uses
+UserController ..> UserUpdateRequest: uses
+
+@enduml
+
+@startuml Field Manager API - Sequence Diagram for User Creation
+
+actor Client
+participant UserController
+participant UserService
+participant UserRepository
+database Database
+
+Client -> UserController: POST /api/users/create\nwith UserCreationRequest
+activate UserController
+
+UserController -> UserService: createUser(request)
+activate UserService
+
+UserService -> UserService: Create new User object
+UserService -> UserService: Set user properties from request
+
+UserService -> UserRepository: save(user)
+activate UserRepository
+
+UserRepository -> Database: INSERT INTO users
+activate Database
+Database --> UserRepository: User with ID
+deactivate Database
+
+UserRepository --> UserService: Saved User
+deactivate UserRepository
+
+UserService --> UserController: User
+deactivate UserService
+
+UserController --> Client: HTTP 200 OK with User
+deactivate UserController
+
+@enduml
+
+@startuml Field Manager API - Sequence Diagram for User Login
+
+actor Client
+participant UserController
+participant UserService
+participant UserRepository
+database Database
+
+Client -> UserController: POST /api/users/login\nwith email and password
+activate UserController
+
+UserController -> UserService: login(email, password)
+activate UserService
+
+UserService -> UserRepository: findByEmail(email)
+activate UserRepository
+
+UserRepository -> Database: SELECT * FROM users WHERE email = ?
+activate Database
+Database --> UserRepository: User or empty
+deactivate Database
+
+alt User not found
+    UserRepository --> UserService: Empty Optional
+    UserService --> UserController: throw IllegalArgumentException
+    UserController --> Client: HTTP 400 Bad Request
+else User found
+    UserRepository --> UserService: User
+    
+    UserService -> UserService: Validate password
+    
+    alt Invalid password
+        UserService --> UserController: throw IllegalArgumentException
+        UserController --> Client: HTTP 400 Bad Request
+    else Valid password
+        UserService --> UserController: "dummy-token"
+        UserController --> Client: HTTP 200 OK with token
+    end
+end
+
+deactivate UserRepository
+deactivate UserService
+deactivate UserController
+
+@enduml
+
+@startuml Field Manager API - Sequence Diagram for Get User
+
+actor Client
+participant UserController
+participant UserService
+participant UserRepository
+database Database
+
+Client -> UserController: GET /api/users/{id}
+activate UserController
+
+UserController -> UserService: getUserById(id)
+activate UserService
+
+UserService -> UserRepository: findById(id)
+activate UserRepository
+
+UserRepository -> Database: SELECT * FROM users WHERE id = ?
+activate Database
+Database --> UserRepository: User or empty
+deactivate Database
+
+UserRepository --> UserService: Optional<User>
+deactivate UserRepository
+
+UserService --> UserController: Optional<User>
+deactivate UserService
+
+alt User found
+    UserController --> Client: HTTP 200 OK with User
+else User not found
+    UserController --> Client: HTTP 404 Not Found
+end
+
+deactivate UserController
+
+@enduml
+
+@startuml Field Manager API - Sequence Diagram for Update User
+
+actor Client
+participant UserController
+participant UserService
+participant UserRepository
+database Database
+
+Client -> UserController: PUT /api/users/{id}\nwith UserUpdateRequest
+activate UserController
+
+UserController -> UserService: updateUser(id, request)
+activate UserService
+
+UserService -> UserRepository: findById(id)
+activate UserRepository
+
+UserRepository -> Database: SELECT * FROM users WHERE id = ?
+activate Database
+Database --> UserRepository: User or empty
+deactivate Database
+
+alt User not found
+    UserRepository --> UserService: Empty Optional
+    UserService --> UserController: throw IllegalArgumentException
+    UserController --> Client: HTTP 400 Bad Request
+else User found
+    UserRepository --> UserService: User
+    
+    UserService -> UserService: Update user properties\nfrom request
+    
+    UserService -> UserRepository: save(user)
+    UserRepository -> Database: UPDATE users SET ... WHERE id = ?
+    activate Database
+    Database --> UserRepository: Updated User
+    deactivate Database
+    
+    UserRepository --> UserService: Updated User
+    UserService --> UserController: Updated User
+    UserController --> Client: HTTP 200 OK with updated User
+end
+
+deactivate UserRepository
+deactivate UserService
+deactivate UserController
+
+@enduml
+
+@startuml Field Manager API - Sequence Diagram for Delete User
+
+actor Client
+participant UserController
+participant UserService
+participant UserRepository
+database Database
+
+Client -> UserController: DELETE /api/users/{id}
+activate UserController
+
+UserController -> UserService: deleteUser(id)
+activate UserService
+
+UserService -> UserRepository: deleteById(id)
+activate UserRepository
+
+UserRepository -> Database: DELETE FROM users WHERE id = ?
+activate Database
+Database --> UserRepository: Confirmation
+deactivate Database
+
+UserRepository --> UserService: void
+deactivate UserRepository
+
+UserService --> UserController: void
+deactivate UserService
+
+UserController --> Client: HTTP 204 No Content
+deactivate UserController
+
+@enduml

@@ -1,0 +1,13 @@
+package net.service.fieldmanager;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class FieldmanagerApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

@@ -42,4 +42,8 @@ public class VolunteerService {
     public void deleteVolunteer(String id) throws ExecutionException, InterruptedException {
         volunteerRepository.deleteById(id);
     }
+
+    public List<Volunteer> getApplicantsByDate(String date) throws ExecutionException, InterruptedException {
+        return volunteerRepository.findAllByServiceDate(date);
+    }
 }

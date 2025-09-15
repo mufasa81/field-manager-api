@@ -50,4 +50,12 @@ public class VolunteerRepository {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         dbFirestore.collection(COLLECTION_NAME).document(id).delete().get();
     }
+
+    public List<Volunteer> findAllByServiceDate(String serviceDate) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection(COLLECTION_NAME).whereEqualTo("serviceDate", serviceDate).get();
+        return future.get().getDocuments().stream()
+                .map(doc -> doc.toObject(Volunteer.class))
+                .collect(Collectors.toList());
+    }
 }

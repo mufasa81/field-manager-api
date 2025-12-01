@@ -1,31 +1,29 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
+# --- 1. 빌드 스테이지 (Builder) ---
+# Java 21 JDK를 포함한 slim 이미지에서 빌드를 시작합니다.
+FROM openjdk:21-jdk-slim AS builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the Gradle wrapper files to the container
+# (이하 빌드 스테이지 내용은 동일)
 COPY gradlew .
 COPY gradle ./gradle
-
-# Copy the build.gradle file
 COPY build.gradle .
 COPY settings.gradle .
-
-# Grant executable permissions to the Gradle wrapper
 RUN chmod +x ./gradlew
-
-# Download dependencies. This will be cached if the build.gradle file doesn't change.
 RUN ./gradlew dependencies
-
-# Copy the rest of the application's source code
 COPY src ./src
+RUN ./gradlew build --no-daemon
 
-# Build the application
-RUN ./gradlew build
 
-# Expose the port the app runs on
+# --- 2. 실행 스테이지 (Runner) ---
+# ⚠️ 이 부분을 수정합니다. JRE 대신 JDK의 slim 버전을 사용합니다.
+FROM openjdk:21-jdk-slim
+
+WORKDIR /app
+
+# 'builder' 스테이지에서 빌드된 JAR 파일만 복사해옵니다.
+COPY --from=builder /app/build/libs/*.jar app.jar
+
 EXPOSE 8080
 
-# Define the command to run the application
-CMD ["java", "-jar", "build/libs/field-manager-api-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "app.jar"]

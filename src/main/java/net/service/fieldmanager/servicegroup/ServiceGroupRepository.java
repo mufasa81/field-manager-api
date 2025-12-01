@@ -40,9 +40,10 @@ public class ServiceGroupRepository {
             groupData.put("createdDate", FieldValue.serverTimestamp());
             docRef.set(groupData).get();
         } else {
-            // For existing documents, we can use update to only change specific fields
-            // or set with merge options. Here we update all fields from the request.
-            docRef.update(groupData).get();
+            // Using set() to perform an "upsert". This will create the document if it doesn't exist,
+            // or overwrite it if it does. This handles the case where a group is cancelled (deleted)
+            // and then confirmed again.
+            docRef.set(groupData).get();
         }
 
         // Note: The returned object will not contain the server-generated timestamps.
@@ -62,5 +63,13 @@ public class ServiceGroupRepository {
     public void deleteById(String id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         dbFirestore.collection(COLLECTION_NAME).document(id).delete();
+    }
+
+    public List<ServiceGroup> findAll() throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection(COLLECTION_NAME).get();
+        return future.get().getDocuments().stream()
+                .map(doc -> doc.toObject(ServiceGroup.class))
+                .collect(Collectors.toList());
     }
 }

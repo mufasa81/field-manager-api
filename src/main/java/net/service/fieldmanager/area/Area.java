@@ -23,6 +23,8 @@ public class Area {
     private boolean isActive;
     private String mapCoordinates; // GeoJSON string
     private String areaGroupId;
+    private boolean hasDoNotVisit;
+    private Instant lastVisited;
     @ServerTimestamp
     private Instant createdDate;
     @ServerTimestamp

@@ -58,4 +58,27 @@ public class VolunteerRepository {
                 .map(doc -> doc.toObject(Volunteer.class))
                 .collect(Collectors.toList());
     }
+
+    public List<Volunteer> findAllByServiceDateAndUserName(String serviceDate, String userName) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection(COLLECTION_NAME)
+                .whereEqualTo("serviceDate", serviceDate)
+                .whereEqualTo("userName", userName)
+                .get();
+        return future.get().getDocuments().stream()
+                .map(doc -> doc.toObject(Volunteer.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<Volunteer> findAllByServiceDateAndUserNameAndServiceType(String serviceDate, String userName, ServiceType serviceType) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection(COLLECTION_NAME)
+                .whereEqualTo("serviceDate", serviceDate)
+                .whereEqualTo("userName", userName)
+                .whereEqualTo("serviceType", serviceType)
+                .get();
+        return future.get().getDocuments().stream()
+                .map(doc -> doc.toObject(Volunteer.class))
+                .collect(Collectors.toList());
+    }
 }

@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class Applicant {
     private String id;
     private String name;
+    private String serviceDate;
+    private ServiceType serviceType;
 }

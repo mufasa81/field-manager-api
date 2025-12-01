@@ -1,5 +1,6 @@
 package net.service.fieldmanager.user;
 
+import net.service.fieldmanager.security.JwtTokenProvider;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public User createUser(UserCreationRequest request) throws ExecutionException, InterruptedException {
         User user = new User();
@@ -35,9 +37,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        // For simplicity, we'll return a dummy token.
-        // In a real application, you would generate a JWT.
-        return "dummy-token";
+        return jwtTokenProvider.createToken(email, user.getName(), user.getRole());
     }
 
     public Optional<User> getUserById(String id) throws ExecutionException, InterruptedException {

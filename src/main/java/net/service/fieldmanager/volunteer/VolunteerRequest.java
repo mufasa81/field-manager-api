@@ -1,12 +1,10 @@
 package net.service.fieldmanager.volunteer;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class VolunteerRequest {
     private String userName;
-    private String serviceDate;
+    private String serviceDate; // YYYY-MM-DD
     private ServiceType serviceType;
 }

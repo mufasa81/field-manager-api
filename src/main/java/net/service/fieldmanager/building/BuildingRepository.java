@@ -22,6 +22,16 @@ public class BuildingRepository {
             DocumentReference docRef = dbFirestore.collection(COLLECTION_NAME).document();
             building.setId(docRef.getId());
         }
+
+        if (building.getUnits() != null) {
+            for (Unit unit : building.getUnits()) {
+                if (unit.getId() == null || unit.getId().isEmpty()) {
+                    // Generate a new ID for the unit if it doesn't have one
+                    unit.setId(dbFirestore.collection(COLLECTION_NAME).document().getId());
+                }
+            }
+        }
+
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COLLECTION_NAME).document(building.getId()).set(building);
         collectionsApiFuture.get();
         return building;

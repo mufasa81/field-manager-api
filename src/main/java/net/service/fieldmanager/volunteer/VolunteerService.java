@@ -46,4 +46,27 @@ public class VolunteerService {
     public List<Volunteer> getApplicantsByDate(String date) throws ExecutionException, InterruptedException {
         return volunteerRepository.findAllByServiceDate(date);
     }
+
+    public Volunteer applyForService(ApplyRequest request) throws ExecutionException, InterruptedException {
+        // First, remove any other applications by this user for the same day
+        List<Volunteer> existingApplications = volunteerRepository.findAllByServiceDateAndUserName(request.getServiceDate(), request.getUserName());
+        for (Volunteer existing : existingApplications) {
+            volunteerRepository.deleteById(existing.getId());
+        }
+
+        // Create and save the new application
+        Volunteer volunteer = Volunteer.builder()
+                .userName(request.getUserName())
+                .serviceDate(request.getServiceDate())
+                .serviceType(request.getServiceType())
+                .build();
+        return volunteerRepository.save(volunteer);
+    }
+
+    public void cancelService(ApplyRequest request) throws ExecutionException, InterruptedException {
+        List<Volunteer> existingApplications = volunteerRepository.findAllByServiceDateAndUserNameAndServiceType(request.getServiceDate(), request.getUserName(), request.getServiceType());
+        for (Volunteer existing : existingApplications) {
+            volunteerRepository.deleteById(existing.getId());
+        }
+    }
 }

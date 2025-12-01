@@ -33,3 +33,4 @@ public class BuildingService {
         return buildingRepository.findAllByAreaId(areaId);
     }
 }
+

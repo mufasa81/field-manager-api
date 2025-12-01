@@ -9,10 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173", "https://[your-firebase-project-id].web.app") // Add your Firebase Hosting URL
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+        registry.addMapping("/**") // Allow CORS for all endpoints
+                .allowedOrigins("http://localhost:5173") // Allow requests from the frontend origin
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // Allowed HTTP methods
+                .allowedHeaders("*") // Allowed headers
+                .allowCredentials(true); // Allow credentials
     }
 }

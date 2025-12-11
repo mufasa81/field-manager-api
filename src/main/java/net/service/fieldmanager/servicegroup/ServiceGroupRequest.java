@@ -11,6 +11,7 @@ public class ServiceGroupRequest {
     private String id; // Can be null for new groups
     private String groupName;
     private String serviceDate;
+    private String leaderId;
     private List<String> assignedAreaIds;
     private List<String> assignedAreaNames;
     private List<Member> members;

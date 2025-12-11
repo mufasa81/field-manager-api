@@ -32,6 +32,7 @@ public class ServiceGroupRepository {
         groupData.put("assignedAreaIds", serviceGroup.getAssignedAreaIds());
         groupData.put("assignedAreaNames", serviceGroup.getAssignedAreaNames());
         groupData.put("members", serviceGroup.getMembers());
+        groupData.put("leaderId", serviceGroup.getLeaderId());
         groupData.put("lastModifiedDate", FieldValue.serverTimestamp());
 
         DocumentReference docRef = dbFirestore.collection(COLLECTION_NAME).document(docId);

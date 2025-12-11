@@ -21,7 +21,7 @@ public class ApplicantController {
         try {
             List<Volunteer> volunteers = volunteerService.getApplicantsByDate(date);
             List<Applicant> applicants = volunteers.stream()
-                    .map(v -> new Applicant(v.getId(), v.getUserName(), v.getServiceDate(), v.getServiceType()))
+                    .map(v -> new Applicant(v.getId(), v.getUserId(), v.getUserName(), v.getServiceDate(), v.getServiceType()))
                     .collect(Collectors.toList());
             return new ResponseEntity<>(applicants, HttpStatus.OK);
         } catch (ExecutionException | InterruptedException e) {

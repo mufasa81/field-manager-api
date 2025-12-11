@@ -37,7 +37,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        return jwtTokenProvider.createToken(email, user.getName(), user.getRole());
+        return jwtTokenProvider.createToken(email, user.getId(), user.getName(), user.getRole());
     }
 
     public Optional<User> getUserById(String id) throws ExecutionException, InterruptedException {

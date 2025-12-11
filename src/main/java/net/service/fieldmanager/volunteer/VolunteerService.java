@@ -56,6 +56,7 @@ public class VolunteerService {
 
         // Create and save the new application
         Volunteer volunteer = Volunteer.builder()
+                .userId(request.getUserId())
                 .userName(request.getUserName())
                 .serviceDate(request.getServiceDate())
                 .serviceType(request.getServiceType())

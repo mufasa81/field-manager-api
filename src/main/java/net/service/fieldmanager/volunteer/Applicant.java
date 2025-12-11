@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Applicant {
     private String id;
+    private String userId;
     private String name;
     private String serviceDate;
     private ServiceType serviceType;

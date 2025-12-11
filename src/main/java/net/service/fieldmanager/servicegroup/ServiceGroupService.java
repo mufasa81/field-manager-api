@@ -23,6 +23,7 @@ public class ServiceGroupService {
                 .id(request.getId()) // Pass id for updates
                 .groupName(request.getGroupName())
                 .serviceDate(request.getServiceDate())
+                .leaderId(request.getLeaderId())
                 .assignedAreaIds(request.getAssignedAreaIds())
                 .assignedAreaNames(request.getAssignedAreaNames())
                 .members(request.getMembers())
@@ -58,6 +59,7 @@ public class ServiceGroupService {
                                 .id(group.getId() + "-" + area.getId()) // Create a unique composite ID
                                 .name(area.getAreaName())
                                 .assignedAt(group.getServiceDate()) // Using the group's service date
+                                .leaderId(group.getLeaderId())
                                 .assignedPeople(group.getMembers())
                                 .hasDoNotVisit(area.isHasDoNotVisit())
                                 .lastVisited(formatLastVisited(area.getLastVisited()))

@@ -19,6 +19,7 @@ public class ServiceGroup {
     private String id;
     private String groupName;
     private String serviceDate; // YYYY-MM-DD
+    private String leaderId;
     private List<String> assignedAreaIds;
     private List<String> assignedAreaNames;
     private List<Member> members;

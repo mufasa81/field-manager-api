@@ -16,6 +16,7 @@ import java.time.Instant;
 public class Volunteer {
     @DocumentId
     private String id;
+    private String userId;
     private String userName;
     private String serviceDate; // YYYY-MM-DD
     private ServiceType serviceType;

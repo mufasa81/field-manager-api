@@ -1,40 +1,16 @@
-# --- 1. 빌드 스테이지 (Builder) ---
-# openjdk보다 eclipse-temurin이 더 안정적이고 가볍습니다.
-FROM eclipse-temurin:21-jdk-jammy AS builder
+# 로컬에서 Ubuntu로 빌드했으므로, 실행 환경도 Ubuntu 계열을 사용합니다.
+# (가벼운 debian-slim을 추천하지만, 안전하게 ubuntu를 씁니다)
+FROM ubuntu:22.04
 
 WORKDIR /app
 
-# Gradle 캐싱을 위해 필요한 파일만 먼저 복사
-COPY gradlew .
-COPY gradle ./gradle
-COPY build.gradle .
-COPY settings.gradle .
+# 1. 실행 파일 복사
+# (로컬에 이미 만들어진 파일을 컨테이너 안으로 집어넣습니다)
+COPY build/native/nativeCompile/fieldmanager app
 
-# 실행 권한 부여
-RUN chmod +x ./gradlew
+# 2. 실행 권한 부여 (혹시 모르니 확실하게)
+RUN chmod +x app
 
-# 의존성 다운로드 (캐싱 활용)
-RUN ./gradlew dependencies --no-daemon
-
-# 소스 코드 복사
-COPY src ./src
-
-# ⚡️ 핵심 수정 1: 테스트(-x test)를 건너뛰고, 실행 가능한 Jar(bootJar)만 만듭니다.
-# clean을 붙여서 이전 빌드 잔여물을 제거합니다.
-RUN ./gradlew clean bootJar -x test --no-daemon
-
-# --- 2. 실행 스테이지 (Runner) ---
-FROM eclipse-temurin:21-jre-jammy
-
-WORKDIR /app
-
-# ⚡️ 핵심 수정 2: 빌드 결과물 경로에서 'plain'이 아닌 실행 파일만 찾아서 복사합니다.
-# 보통 bootJar를 하면 'libs' 폴더에 실행 가능한 jar가 생성됩니다.
-# 혹시 모를 plain jar 충돌을 막기 위해 정확한 패턴이나 이름 변경 전략을 씁니다.
-# (가장 확실한 방법은 아래처럼 구체적인 파일명을 복사하는 것이지만,
-#  이름이 바뀔 수 있으므로 shell 명령어로 plain이 아닌 것을 찾습니다.)
-COPY --from=builder /app/build/libs/*SNAPSHOT.jar app.jar
-
+# 3. 포트 노출 및 실행
 EXPOSE 8080
-
-CMD ["java", "-jar", "app.jar"]
+CMD ["./app"]

@@ -65,4 +65,16 @@ public class UserRepository {
         }
         return Optional.empty();
     }
+
+    public Optional<User> findByName(String name) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        CollectionReference users = dbFirestore.collection(COLLECTION_NAME);
+        Query query = users.whereEqualTo("name", name);
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+        for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
+            return Optional.ofNullable(document.toObject(User.class));
+        }
+        return Optional.empty();
+    }
 }

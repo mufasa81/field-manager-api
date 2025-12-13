@@ -29,15 +29,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public String login(String email, String password) throws ExecutionException, InterruptedException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+    public String login(String name, String password) throws ExecutionException, InterruptedException {
+        User user = userRepository.findByName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid name or password"));
 
         if (!password.equals(user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new IllegalArgumentException("Invalid name or password");
         }
 
-        return jwtTokenProvider.createToken(email, user.getId(), user.getName(), user.getRole());
+        return jwtTokenProvider.createToken(name, user.getId(), user.getName(), user.getRole());
     }
 
     public Optional<User> getUserById(String id) throws ExecutionException, InterruptedException {

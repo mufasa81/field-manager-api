@@ -1,7 +1,14 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.3.2'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.graalvm.buildtools.native' version '0.10.2'
+
+
+}
+
+springBoot {
+    mainClass = 'net.service.fieldmanager.FieldmanagerApplication'
 }
 
 group = 'net.service'
@@ -28,35 +35,75 @@ repositories {
 	mavenCentral()
 }
 
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'fieldmanager'
+			buildArgs.add('-J-Xmx8g')
+            buildArgs.add('-J-Xms4g')
+			buildArgs.add('--parallelism=6')
+            buildArgs.add('--enable-url-protocols=http,https')
+			buildArgs.addAll([
+                '--no-fallback',
+                '--initialize-at-build-time=org.slf4j',
+                '--report-unsupported-elements-at-runtime'
+            ])
+        }
+    }
+}
+
+
 dependencies {
 	implementation platform('com.google.firebase:firebase-bom:33.5.1')
 	implementation 'com.google.firebase:firebase-admin:9.3.0'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.h2database:h2'
+
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'io.grpc:grpc-protobuf'
+
+	implementation 'io.grpc:grpc-netty-shaded' // Firebase 안정성
+    implementation 'ch.qos.logback:logback-classic'
+	
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-	systemProperty 'file.encoding', 'UTF-8'
-	testLogging {
-		events "passed", "skipped", "failed"
-		showStandardStreams = true
-	}
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+    options.compilerArgs += ['-parameters']
 }
 
 jar {
-    enabled = false
+    enabled = true
+}
+
+bootJar {
+    enabled = true
+}
+
+tasks.named('processAot') {
+	dependsOn tasks.named('compileJava')
+    doFirst {
+        classpath = sourceSets.main.runtimeClasspath
+    }
+}
+
+tasks.withType(org.graalvm.buildtools.gradle.tasks.BuildNativeImageTask).configureEach {
+    doFirst {
+        delete fileTree("${buildDir}") {
+            include "**/proxy-config.json"
+        }
+    }
 }

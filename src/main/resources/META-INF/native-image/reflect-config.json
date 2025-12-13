@@ -1,0 +1,34 @@
+[
+  {
+    "name": "io.jsonwebtoken.impl.DefaultClaims",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "io.jsonwebtoken.impl.DefaultJwtParser",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "io.jsonwebtoken.impl.DefaultJwtParserBuilder",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+
+  {
+    "name": "com.google.cloud.firestore.FirestoreOptions",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.google.cloud.firestore.FirestoreImpl",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+
+  {
+    "name": "com.google.api.gax.grpc.GrpcTransportChannel",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  }
+]

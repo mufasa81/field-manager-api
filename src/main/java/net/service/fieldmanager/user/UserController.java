@@ -22,8 +22,8 @@ public class UserController {
 
     @PostMapping(value = "/login", consumes = "application/json")
     public ResponseEntity<String> login(@RequestBody User user) throws ExecutionException, InterruptedException {
-        System.out.println("login called." + user.getEmail()+"/"+user.getPassword());
-        String token = userService.login(user.getEmail(), user.getPassword());
+        System.out.println("login called." + user.getName()+"/"+user.getPassword());
+        String token = userService.login(user.getName(), user.getPassword());
         return ResponseEntity.ok(token);
     }
 

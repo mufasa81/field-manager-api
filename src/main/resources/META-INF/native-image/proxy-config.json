@@ -1,0 +1,8 @@
+[
+  {
+    "interfaces": [
+      "io.grpc.ManagedChannel",
+      "java.io.Closeable"
+    ]
+  }
+]

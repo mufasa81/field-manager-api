@@ -1,0 +1,10 @@
+{
+  "resources": {
+    "includes": [
+      { "pattern": ".*\\.json" },
+      { "pattern": ".*\\.properties" },
+      { "pattern": ".*\\.pem" },
+      { "pattern": ".*\\.proto" }
+    ]
+  }
+}
